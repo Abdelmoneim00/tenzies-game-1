@@ -8,7 +8,8 @@ import Confetti from 'react-confetti'
 
 export default function App() {  
     
-  const [rolls,setRolls] =React.useState(0);   
+  const [rolls,setRolls] =React.useState(0);
+  const [final, setFinal] = React.useState(0)
   function generateNewDice() {
     return{
         value:Math.floor(Math.random()*6+1),
@@ -30,6 +31,7 @@ export default function App() {
      holdDice={()=>holdDice(die.id)}
      />) 
       function resetGame() {
+          setFinal(rolls)
           setTenzies(!tenzies)
           setDie(allNewDice())
           setRolls(-1) 
@@ -47,7 +49,6 @@ export default function App() {
           resetGame()
         }   
          setRolls(prevRoll=>prevRoll+1);
-         setBestRolls(rolls+1)
         
       }
       function holdDice(id) {
@@ -57,6 +58,7 @@ export default function App() {
             if (id === die.id ){
               return {...die,isHeld:!die.isHeld}} else  return die  
         }))}
+    
           const [tenzies, setTenzies] =React.useState(false);
           React.useEffect(()=>{
                     let anyVal=die[2].value ; 
@@ -74,7 +76,6 @@ export default function App() {
        function setRecords(){
         if (!bestRolls || rolls < bestRolls ) {
           console.log(rolls)
-          setBestRolls(rolls)  
         }  
         if (!bestTime || (time/10) < bestTime) {
           console.log(time)
@@ -83,8 +84,16 @@ export default function App() {
       };     
      
       React.useEffect(()=>
-      { localStorage.setItem("best rolls",JSON.stringify(bestRolls))},
-      [bestRolls]);
+      { if(JSON.parse(localStorage.getItem("best rolls"))) {
+        if(final < JSON.parse(localStorage.getItem("best rolls")))
+        localStorage.removeItem("best rolls");
+        localStorage.setItem("best rolls",JSON.stringify(rolls));
+      } else {
+        localStorage.setItem("best rolls",JSON.stringify(rolls));
+        setBestRolls(JSON.parse(localStorage.getItem("best rolls")))
+      }
+    },
+      [tenzies]);
       React.useEffect(()=>
        {localStorage.setItem("best time",JSON.stringify(bestTime))},
       [bestTime]);
